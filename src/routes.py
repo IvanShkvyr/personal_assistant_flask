@@ -1,11 +1,24 @@
 from datetime import datetime, timedelta
 import uuid
 
-from flask import make_response, redirect, render_template, request, session, url_for
+from flask import flash, make_response, redirect, render_template, request, session, url_for
 from sqlalchemy.exc import IntegrityError
 
 from . import app
-from .repository import users
+from .repository import users, records
+from src import models
+
+# @app.before_request
+# def defore_func():
+#     auth = True if 'login' in session else False
+#     if not auth:
+#         token_user = request.cookies.get('login')
+#         if token_user:
+#             user = users.get_user_by_token(token_user)
+#             if user:
+#                 session["login"] = {"login":user.login, "id": user.id}
+
+
 
 
 @app.route("/check")
@@ -34,22 +47,20 @@ def registration():
             users.create_user(login, phone, password)
             return redirect(url_for("login"))
         except IntegrityError:
-            return render_template("pages/registration.html", messages={'Error': f"User with phone {phone} exist!"})
-    return render_template("pages/registration.html")
+            return render_template("pages/registration.html", messages={'Error': f"User with phone {phone} exist!"}, auth=auth)
+    return render_template("pages/registration.html", auth=auth)
 
 
 @app.route("/login", methods=["GET", "POST"], strict_slashes=False)
 def login():
-    print(1)
     auth = True if 'login' in session else False
-    print(2)
-    if request.method == "POST":    
+    if request.method == "POST":
         login = request.form.get("login")
         password = request.form.get("password")
         remember = True if request.form.get("remember") == "on" else False
         user = users.login(login, password)
         if user is None:
-            return render_template("pages/login.html", messages={'Error': f"Invalid credentials"})
+            return render_template("pages/login.html", messages={'Error': f"Invalid credentials"}, auth=auth)
         session["login"] = {"login": user.login, "id": user.id}
         response = make_response(redirect(url_for("index")))
         if remember:
@@ -57,19 +68,162 @@ def login():
             expire_data = datetime.now() + timedelta(days=60)
             response.set_cookie('login', token, expires=expire_data)
             users.set_token(user, token)
-    
+
         return response
     if auth:
         return redirect(url_for("index"))
     else:
-        return render_template("pages/login.html")
-    
+        return render_template("pages/login.html", auth=auth)
+
+@app.route("/logout", strict_slashes=False)
+def logout():
+    auth = True if 'login' in session else False
+    if not auth:
+        return redirect(url_for("index"))
+    session.pop("login")
+    response = make_response(redirect(url_for("index")))
+    response.set_cookie("login", "", expires=-1)
+    return response
+
+
+@app.route("/create", methods=["GET", "POST"], strict_slashes=False)
+def create():
+    auth = True if 'login' in session else False
+    if not auth:
+        return redirect(url_for("index"))
+    if request.method == "POST":
+        # Перевірка схеми на корекність введених даних
+        # НАПИСАТИ
+        first_name = request.form.get("first_name")
+        last_name = request.form.get("last_name")
+        phone = request.form.get("phone")
+        email = request.form.get("email")
+        address = request.form.get("address")
+        birthday = request.form.get("birthday")
+        black_list = request.form.get("black_list")
+        user_id = session["login"]["id"]
+
+        try:
+            records.create_record(first_name=first_name, phone=phone, user_id=user_id, last_name=last_name, email=email, address=address,  black_list=black_list, birthday=birthday)
+        except IntegrityError:
+            return render_template("pages/create.html", messages={'Error': f"Record with name {first_name} exist!"}, auth=auth)
+
+        return redirect(url_for("create"))
+
+    return render_template("pages/create.html", auth=auth, users2=session["login"]["login"])
+
+
+
+@app.route("/update", methods=["GET", "POST"], strict_slashes=False)
+def update():
+    auth = True if 'login' in session else False
+    if not auth:
+        return redirect(url_for("index"))
+    if request.method == "POST":
+        # Перевірка схеми на корекність введених даних
+        # НАПИСАТИ
+        record_id = request.form.get("record_id")
+
+        first_name = request.form.get("first_name")
+        last_name = request.form.get("last_name")
+        phone = request.form.get("phone")
+        email = request.form.get("email")
+        address = request.form.get("address")
+        birthday = request.form.get("birthday")
+        black_list = request.form.get("black_list")
+        user_id = session["login"]["id"]
+
+        try:
+            records.update_record(record_id=record_id, first_name=first_name, phone=phone, user_id=user_id, last_name=last_name, email=email, address=address,  black_list=black_list, birthday=birthday)
+        except:
+            return render_template("pages/update.html", messages={'Error': f"Record with id {record_id} does not exist!"}, auth=auth)
+
+        return redirect(url_for("update"))
+
+    return render_template("pages/update.html", auth=auth, users2=session["login"]["login"])
+
+
+@app.route("/remove", methods=["GET", "POST"], strict_slashes=False)
+def remove():
+    auth = True if 'login' in session else False
+    if not auth:
+        return redirect(url_for("index"))
+
+    if request.method == "POST":
+        record_id = request.form.get("record_id")
+        user_id = session["login"]["id"]
+
+        result_is = records.delete_record(record_id, user_id)
+
+        if result_is:
+            flash("Deleted successfully!")
+        else:
+            flash("The user does not have such an entry in the address book")
+
+    return render_template("pages/remove.html", auth=auth, users2=session["login"]["login"])
+
+
+@app.route("/show_record", methods=["GET", "POST"], strict_slashes=False)
+def show_record():
+    auth = True if 'login' in session else False
+    if not auth:
+        return redirect(url_for("index"))
+
+    if request.method == "POST":
+        record_id = request.form.get("record_id")
+        user_id = session["login"]["id"]
+        result = records.show_record(record_id, user_id)
+
+        if not result:
+            flash("The user does not have such an entry in the address book")
+        else:
+            message = "{:^3};{:^10};{:^10};{:^20};{:^30};{:^70};{:^12};{:^12}".format(result.id, result.first_name, result.last_name, result.phone,
+                                                                             result.email, result.address, result.birthday.strftime('%d %B %Y'),
+                                                                             result.black_list)
+            flash(message)
+
+    return render_template("pages/show_record.html", auth=auth, users2=session["login"]["login"])
+
+
+@app.route("/show_all", methods=["GET", "POST"], strict_slashes=False)
+def show_all():
+    auth = True if 'login' in session else False
+    if not auth:
+        return redirect(url_for("index"))
+
+    if request.method == "POST":
+
+        user_id = session["login"]["id"]
+
+        results = records.show_all_records(user_id)
+        if not results:
+            flash("The user does not have such an entry in the address book")
+
+        print(results)
+        print("----------------------")
+        for result in results:
+            message = "{:^3};{:^10};{:^10};{:^20};{:^30};{:^70};{:^12};{:^12}".format(result.id, result.first_name, result.last_name, result.phone,
+                                                                             result.email, result.address, result.birthday.strftime('%d %B %Y'),
+                                                                             result.black_list)
+            flash(message)  
+
+    return render_template("pages/show_all.html", auth=auth, users2=session["login"]["login"])
 
 
 
 
 
+@app.route("/days_to_birthday", methods=["GET", "POST"], strict_slashes=False)
+def days_to_birthday():
+    auth = True if 'login' in session else False
+    if not auth:
+        return redirect(url_for("index"))
 
+    if request.method == "POST":
+        record_id = request.form.get("record_id")
+        user_id = session["login"]["id"]
 
+        result = records.how_many_days_to_birthday(record_id, user_id)
+        flash(result)
 
-
+    return render_template("pages/days_to_birthday.html", auth=auth, users2=session["login"]["login"])

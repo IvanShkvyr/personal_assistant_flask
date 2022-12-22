@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+      <div class="container">
+        <div class="row justify-content-center mb-3">
+          <h1>Create</h1>
+        </div>
+
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-danger">{{message}}: {{messages[message]}}</div>
+          {% endfor %}
+        {% endif %}
+
+        <div class="row justify-content-center">
+          <form class="col-sm-6" action="/create" method="post">
+
+            <div class="form-group">
+              <input
+                class="form-control col-sm-12"
+                type="text"
+                placeholder="first_name"
+                name="first_name"
+              />
+            </div>
+
+            <div class="form-group">
+              <input
+                class="col-sm-12 form-control"
+                type="text"
+                placeholder="last_name"
+                name="last_name"
+              />
+            </div>
+
+            <div class="form-group">
+              <input
+                class="col-sm-12 form-control"
+                type="text"
+                placeholder="phone"
+                name="phone"
+              />
+            </div>
+
+            <div class="form-group">
+              <input
+                class="col-sm-12 form-control"
+                type="text"
+                placeholder="email"
+                name="email"
+              />
+            </div>
+
+            <div class="form-group">
+              <input
+                class="col-sm-12 form-control"
+                type="text"
+                placeholder="address"
+                name="address"
+              />
+            </div>
+
+            <div class="form-group">
+              <input
+                class="col-sm-12 form-control"
+                type="date"
+                placeholder="birthday"
+                name="birthday"
+
+              />
+
+            </div>
+            black_list
+            <div class="form-group">
+              <select
+                class="col-sm-12 form-control"
+                placeholder="black_list"
+                name="black_list">
+                <option value="1">False</option>
+                <option value="2">True</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <button class="btn btn-primary col-sm-12" type="submit">
+                Create
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+{% endblock %}

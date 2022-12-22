@@ -28,3 +28,9 @@ def set_token(user, token):
     user.token_cookie = token
     db.session.commit()
 
+
+def get_user_by_token(token_user):
+    user = db.session.query(models.Users).filter(models.Users.token_cookie == token_user).first()
+    if not user:
+        return None
+    return user

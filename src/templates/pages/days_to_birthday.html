@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+      <div class="container">
+        <div class="row justify-content-center mb-3">
+          <h1>How many days until birthday?</h1>
+        </div>
+        <div class="row justify-content-center">
+          <form class="col-sm-6" action="/days_to_birthday" method="post">
+            <div class="form-group">
+              <input
+                class="form-control col-sm-12"
+                type="text"
+                placeholder="record_id"
+                name="record_id"
+              />
+            </div>
+            <div class="form-group">
+              <button class="btn btn-primary col-sm-12" type="submit">
+                Show
+              </button>
+            </div>
+            
+          </form>
+        </div>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-info">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      </div>
+{% endblock %}
