@@ -10,7 +10,7 @@ from sqlalchemy.orm import relationship
 
 from config.config import BASE_DIR
 from src.libs import constants
-from src.repository.users import inc, create_user
+from src.repository.users import create_user
 from src.models import db
 from src.models import Users, AddressBook
 

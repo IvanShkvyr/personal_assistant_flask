@@ -1,18 +1,18 @@
-from src import db
-from src import models
 import bcrypt
 
+from src.models import Users
+from src import db
 
-def create_user(login, phone, password):
+def create_user(login, phone, password, session_):
     hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt(rounds=10))
-    user = models.Users(login=login, phone=phone, hash=hash)
-    db.session.add(user)
-    db.session.commit()
+    user = Users(login=login, phone=phone, hash=hash)
+    session_.add(user)
+    session_.commit()
     return user
 
 
-def login(login, password):
-    user = find_by_login(login)
+def login(login, password, session_):
+    user = find_by_login(login, session_)
     if not user:
         return None
     if not bcrypt.checkpw(password.encode("utf-8"), user.hash):
@@ -20,8 +20,8 @@ def login(login, password):
     return user
 
 
-def find_by_login(login):
-    return db.session.query(models.Users).filter(models.Users.login == login).first()
+def find_by_login(login, session_):
+    return session_.query(Users).filter(Users.login == login).first()
 
 
 def set_token(user, token):
@@ -30,11 +30,7 @@ def set_token(user, token):
 
 
 def get_user_by_token(token_user):
-    user = db.session.query(models.Users).filter(models.Users.token_cookie == token_user).first()
+    user = db.session.query(Users).filter(Users.token_cookie == token_user).first()
     if not user:
         return None
     return user
-
-
-def inc(x):
-    return x + 1

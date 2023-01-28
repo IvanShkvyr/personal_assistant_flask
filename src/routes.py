@@ -7,6 +7,8 @@ from sqlalchemy.exc import IntegrityError
 from . import app
 from .repository import users, records
 from src import models
+from src import db
+
 
 
 @app.route("/check")
@@ -31,8 +33,10 @@ def registration():
         phone = request.form.get("phone")
         password = request.form.get("password")
 
+        session_ = db.session
+
         try:
-            users.create_user(login, phone, password)
+            users.create_user(login, phone, password, session_)
             return redirect(url_for("login"))
         except IntegrityError:
             return render_template("pages/registration.html", messages={'Error': f"User with phone {phone} exist!"}, auth=auth)
@@ -46,7 +50,8 @@ def login():
         login = request.form.get("login")
         password = request.form.get("password")
         remember = True if request.form.get("remember") == "on" else False
-        user = users.login(login, password)
+        session_ = db.session
+        user = users.login(login, password, session_)
         if user is None:
             return render_template("pages/login.html", messages={'Error': f"Invalid credentials"}, auth=auth)
         session["login"] = {"login": user.login, "id": user.id}
@@ -89,9 +94,20 @@ def create():
         birthday = request.form.get("birthday")
         black_list = request.form.get("black_list")
         user_id = session["login"]["id"]
+        session_ = db.session
 
         try:
-            records.create_record(first_name=first_name, phone=phone, user_id=user_id, last_name=last_name, email=email, address=address,  black_list=black_list, birthday=birthday)
+            records.create_record(
+                                first_name=first_name,
+                                phone=phone,
+                                user_id=user_id,
+                                last_name=last_name,
+                                email=email,
+                                address=address,
+                                black_list=black_list,
+                                birthday=birthday,
+                                session_=session_
+                                )
         except IntegrityError:
             return render_template("pages/create.html", messages={'Error': f"Record with name {first_name} exist!"}, auth=auth)
 
@@ -115,9 +131,21 @@ def update():
         birthday = request.form.get("birthday")
         black_list = request.form.get("black_list")
         user_id = session["login"]["id"]
-
+        session_ = db.session
+        
         try:
-            records.update_record(record_id=record_id, first_name=first_name, phone=phone, user_id=user_id, last_name=last_name, email=email, address=address,  black_list=black_list, birthday=birthday)
+            records.update_record(
+                                record_id=record_id,
+                                first_name=first_name,
+                                phone=phone,
+                                user_id=user_id,
+                                last_name=last_name,
+                                email=email,
+                                address=address,
+                                black_list=black_list,
+                                birthday=birthday,
+                                session_=session_
+                                )
         except:
             return render_template("pages/update.html", messages={'Error': f"Record with id {record_id} does not exist!"}, auth=auth)
 
@@ -151,7 +179,9 @@ def show_record():
     if request.method == "POST":
         record_id = request.form.get("record_id")
         user_id = session["login"]["id"]
-        result = records.show_record(record_id, user_id)
+        session_ = db.session
+
+        result = records.get_record_user(record_id, user_id, session_)
 
         if not result:
             flash("The user does not have such an entry in the address book")
