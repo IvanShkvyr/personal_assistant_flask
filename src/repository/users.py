@@ -34,3 +34,7 @@ def get_user_by_token(token_user):
     if not user:
         return None
     return user
+
+
+def inc(x):
+    return x + 1

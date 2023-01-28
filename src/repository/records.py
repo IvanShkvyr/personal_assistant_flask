@@ -95,21 +95,11 @@ def how_many_days_to_birthday(record_id, user_id):
 
     current_date, current_year, next_year = _current_date_and_year()
 
-
-
-
-
     if person.birthday.strftime('%Y-%m-%d') == "1900-01-01":
         return "The user does not have such an entry in the address book"
 
-
-
-
-
     birthday = person.birthday
     birthday = birthday.replace(year=current_year)
-
-    
 
     if birthday < current_date:
         result = (birthday.replace(year=next_year) - current_date).days

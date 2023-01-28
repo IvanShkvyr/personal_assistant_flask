@@ -8,27 +8,17 @@ from . import app
 from .repository import users, records
 from src import models
 
-# @app.before_request
-# def defore_func():
-#     auth = True if 'login' in session else False
-#     if not auth:
-#         token_user = request.cookies.get('login')
-#         if token_user:
-#             user = users.get_user_by_token(token_user)
-#             if user:
-#                 session["login"] = {"login":user.login, "id": user.id}
-
-
-
 
 @app.route("/check")
 def check():
     return "I am working"
 
+
 @app.route("/", strict_slashes=False)
 def index():
     auth = True if 'login' in session else False
     return render_template("pages/index.html", title="personal asistant", auth=auth)
+
 
 @app.route("/registration", methods=["GET", "POST"], strict_slashes=False)
 def registration():
@@ -36,8 +26,6 @@ def registration():
     if auth:
         return redirect(url_for("index"))
     if request.method == "POST":
-        # Перевірка схеми на корекність введених даних
-        # НАПИСАТИ
 
         login = request.form.get("login")
         phone = request.form.get("phone")
@@ -75,6 +63,7 @@ def login():
     else:
         return render_template("pages/login.html", auth=auth)
 
+
 @app.route("/logout", strict_slashes=False)
 def logout():
     auth = True if 'login' in session else False
@@ -92,8 +81,6 @@ def create():
     if not auth:
         return redirect(url_for("index"))
     if request.method == "POST":
-        # Перевірка схеми на корекність введених даних
-        # НАПИСАТИ
         first_name = request.form.get("first_name")
         last_name = request.form.get("last_name")
         phone = request.form.get("phone")
@@ -113,17 +100,13 @@ def create():
     return render_template("pages/create.html", auth=auth, users2=session["login"]["login"])
 
 
-
 @app.route("/update", methods=["GET", "POST"], strict_slashes=False)
 def update():
     auth = True if 'login' in session else False
     if not auth:
         return redirect(url_for("index"))
     if request.method == "POST":
-        # Перевірка схеми на корекність введених даних
-        # НАПИСАТИ
         record_id = request.form.get("record_id")
-
         first_name = request.form.get("first_name")
         last_name = request.form.get("last_name")
         phone = request.form.get("phone")
@@ -152,14 +135,11 @@ def remove():
     if request.method == "POST":
         record_id = request.form.get("record_id")
         user_id = session["login"]["id"]
-
         result_is = records.delete_record(record_id, user_id)
-
         if result_is:
             flash("Deleted successfully!")
         else:
             flash("The user does not have such an entry in the address book")
-
     return render_template("pages/remove.html", auth=auth, users2=session["login"]["login"])
 
 
@@ -168,7 +148,6 @@ def show_record():
     auth = True if 'login' in session else False
     if not auth:
         return redirect(url_for("index"))
-
     if request.method == "POST":
         record_id = request.form.get("record_id")
         user_id = session["login"]["id"]
@@ -181,7 +160,6 @@ def show_record():
                                                                              result.email, result.address, result.birthday.strftime('%d %B %Y'),
                                                                              result.black_list)
             flash(message)
-
     return render_template("pages/show_record.html", auth=auth, users2=session["login"]["login"])
 
 
@@ -192,15 +170,11 @@ def show_all():
         return redirect(url_for("index"))
 
     if request.method == "POST":
-
         user_id = session["login"]["id"]
-
         results = records.show_all_records(user_id)
         if not results:
             flash("The user does not have such an entry in the address book")
 
-        print(results)
-        print("----------------------")
         for result in results:
             message = "{:^3};{:^10};{:^10};{:^20};{:^30};{:^70};{:^12};{:^12}".format(result.id, result.first_name, result.last_name, result.phone,
                                                                              result.email, result.address, result.birthday.strftime('%d %B %Y'),
@@ -208,9 +182,6 @@ def show_all():
             flash(message)  
 
     return render_template("pages/show_all.html", auth=auth, users2=session["login"]["login"])
-
-
-
 
 
 @app.route("/days_to_birthday", methods=["GET", "POST"], strict_slashes=False)

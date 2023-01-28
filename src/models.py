@@ -27,3 +27,5 @@ class AddressBook(db.Model):
     black_list = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, ForeignKey("users.id"), nullable=False)
     user = relationship("Users", cascade="all, delete", back_populates="addressbook")
+
+
