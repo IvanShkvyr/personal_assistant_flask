@@ -1,18 +1,12 @@
-import bcrypt
 import os
 import unittest
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, Boolean, Table
-from sqlalchemy.orm import relationship
 
 from config.config import BASE_DIR
-from src.libs import constants
-from src.repository.users import create_user
 from src.models import db
-from src.models import Users, AddressBook
 
 
 class SqliteDriver():

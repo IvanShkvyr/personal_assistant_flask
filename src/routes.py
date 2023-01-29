@@ -163,7 +163,8 @@ def remove():
     if request.method == "POST":
         record_id = request.form.get("record_id")
         user_id = session["login"]["id"]
-        result_is = records.delete_record(record_id, user_id)
+        session_ = db.session
+        result_is = records.delete_record(record_id, user_id, session_)
         if result_is:
             flash("Deleted successfully!")
         else:
@@ -201,7 +202,8 @@ def show_all():
 
     if request.method == "POST":
         user_id = session["login"]["id"]
-        results = records.show_all_records(user_id)
+        session_ = db.session
+        results = records.show_all_records(user_id, session_)
         if not results:
             flash("The user does not have such an entry in the address book")
 
@@ -223,8 +225,9 @@ def days_to_birthday():
     if request.method == "POST":
         record_id = request.form.get("record_id")
         user_id = session["login"]["id"]
+        session_ = db.session
 
-        result = records.how_many_days_to_birthday(record_id, user_id)
+        result = records.how_many_days_to_birthday(record_id, user_id, session_)
         flash(result)
 
     return render_template("pages/days_to_birthday.html", auth=auth, users2=session["login"]["login"])

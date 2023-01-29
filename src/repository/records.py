@@ -60,67 +60,67 @@ def update_record(record_id, first_name, phone, user_id, last_name, email, addre
     session_.commit()
 
 
-# def delete_record(record_id, user_id):
-#     criterion = db.session.query(models.AddressBook).filter(
-#         and_(models.AddressBook.user_id == user_id, models.AddressBook.id == record_id)).first()
+def delete_record(record_id, user_id, session_):
+    criterion = session_.query(AddressBook).filter(
+        and_(AddressBook.user_id == user_id, AddressBook.id == record_id)).first()
 
-#     if not criterion:
-#         return False
+    if not criterion:
+        return False
 
-#     db.session.query(models.AddressBook).filter(
-#         and_(models.AddressBook.user_id == user_id, models.AddressBook.id == record_id)).delete()
-#     db.session.commit()
+    session_.query(AddressBook).filter(
+        and_(AddressBook.user_id == user_id, AddressBook.id == record_id)).delete()
+    session_.commit()
 
-#     return True
+    return True
 
 
-# def show_record(record_id, user_id):
-#     criterion = db.session.query(models.AddressBook).filter(
-#         and_(models.AddressBook.user_id == user_id, models.AddressBook.id == record_id)).first()
+def show_record(record_id, user_id, session_):
+    criterion = session_.query(AddressBook).filter(
+        and_(AddressBook.user_id == user_id, AddressBook.id == record_id)).first()
 
-#     if not criterion:
-#         return False
+    if not criterion:
+        return False
     
-#     return criterion
+    return criterion
 
 
-# def show_all_records(user_id):
-#     criterion = db.session.query(models.AddressBook).filter(
-#         and_(models.AddressBook.user_id == user_id)).all()
+def show_all_records(user_id, session_):
+    criterion = session_.query(AddressBook).filter(
+        and_(AddressBook.user_id == user_id)).all()
 
-#     if not criterion:
-#         return False
+    if not criterion:
+        return False
     
-#     return criterion
+    return criterion
 
 
-# def how_many_days_to_birthday(record_id, user_id):
-#     person = db.session.query(models.AddressBook).filter(
-#         and_(models.AddressBook.user_id == user_id, models.AddressBook.id == record_id)).first()
+def how_many_days_to_birthday(record_id, user_id, session_):
+    person = session_.query(AddressBook).filter(
+        and_(AddressBook.user_id == user_id, AddressBook.id == record_id)).first()
 
-#     if not person:
-#         return "The user does not have such an entry in the address book"
+    if not person:
+        return "The user does not have such an entry in the address book"
 
-#     current_date, current_year, next_year = _current_date_and_year()
+    current_date, current_year, next_year = _current_date_and_year()
 
-#     if person.birthday.strftime('%Y-%m-%d') == "1900-01-01":
-#         return "The user does not have such an entry in the address book"
+    if person.birthday.strftime('%Y-%m-%d') == "1900-01-01":
+        return "The user does not have such an entry in the address book"
 
-#     birthday = person.birthday
-#     birthday = birthday.replace(year=current_year)
+    birthday = person.birthday
+    birthday = birthday.replace(year=current_year)
 
-#     if birthday < current_date:
-#         result = (birthday.replace(year=next_year) - current_date).days
-#     elif birthday > current_date:
-#         result = (birthday - current_date).days
-#     else:
-#         return f"Today {person.first_name}'s birthday!!!"
-#     return f" There are {result} days left until {person.first_name}'s birthday"
+    if birthday < current_date:
+        result = (birthday.replace(year=next_year) - current_date).days
+    elif birthday > current_date:
+        result = (birthday - current_date).days
+    else:
+        return f"Today {person.first_name}'s birthday!!!"
+    return f" There are {result} days left until {person.first_name}'s birthday"
 
 
-# def _current_date_and_year():
-#     """Returns the current date, the current year, and the next year"""
-#     current_date = datetime.now().date()
-#     current_year = current_date.year
-#     next_year = current_year + 1
-#     return current_date, current_year, next_year
+def _current_date_and_year():
+    """Returns the current date, the current year, and the next year"""
+    current_date = datetime.now().date()
+    current_year = current_date.year
+    next_year = current_year + 1
+    return current_date, current_year, next_year
