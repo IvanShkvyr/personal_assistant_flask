@@ -32,9 +32,9 @@ def registration():
         login = request.form.get("login")
         phone = request.form.get("phone")
         password = request.form.get("password")
-
-        session_ = db.session
-
+        
+        session_ = session
+        
         try:
             users.create_user(login, phone, password, session_)
             return redirect(url_for("login"))

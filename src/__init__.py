@@ -9,6 +9,7 @@ app.debug = True
 app.config.from_object(config.Config)
 
 db = SQLAlchemy(app)
+session = db.session
 
 migrate = Migrate(app, db)
 

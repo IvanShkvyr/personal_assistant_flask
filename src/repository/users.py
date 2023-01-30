@@ -1,9 +1,11 @@
 import bcrypt
 
 from src.models import Users
-from src import db
+from src import session
+
 
 def create_user(login, phone, password, session_):
+
     hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt(rounds=10))
     user = Users(login=login, phone=phone, hash=hash)
     session_.add(user)
@@ -11,7 +13,7 @@ def create_user(login, phone, password, session_):
     return user
 
 
-def login(login, password, session_):
+def login(login, password, session_=None):
     user = find_by_login(login, session_)
     if not user:
         return None
@@ -20,17 +22,17 @@ def login(login, password, session_):
     return user
 
 
-def find_by_login(login, session_):
+def find_by_login(login, session_=None):
     return session_.query(Users).filter(Users.login == login).first()
 
 
 def set_token(user, token):
     user.token_cookie = token
-    db.session.commit()
+    session.commit()
 
 
 def get_user_by_token(token_user):
-    user = db.session.query(Users).filter(Users.token_cookie == token_user).first()
+    user = session.query(Users).filter(Users.token_cookie == token_user).first()
     if not user:
         return None
     return user

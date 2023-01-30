@@ -32,13 +32,13 @@ class TestRepositoryUsers(DbTestCase):
         self.assertTrue(query)
 
     def test_find_by_login(self):
-        query = self._create_userss_record(login="user_2", phone="2222222222", hash="password")
+        query = self._create_userss_record(login="user_2", phone="2222222222", raw_pasword="password")
         login_user_2 = query.login
         find_user = find_by_login(login_user_2, self.session)
         self.assertTrue(find_user)
 
     def test_login(self):
-        query = self._create_userss_record(login="user_3", phone="3333333333", hash="password")
+        query = self._create_userss_record(login="user_3", phone="3333333333", raw_pasword="password")
         login_user_3 = query.login
         login_user = login(login_user_3, "password", self.session)
         self.assertTrue(login_user)

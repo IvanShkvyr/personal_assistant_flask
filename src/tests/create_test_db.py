@@ -7,6 +7,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 from config.config import BASE_DIR
 from src.models import db
+from src import app
 
 
 class SqliteDriver():
@@ -38,6 +39,7 @@ class DbTestCase(DbNoSetupTestCase):
         super(DbTestCase, self).setUp()
         db.Model.metadata.create_all(self.engine)
         self.session = sessionmaker(bind=self.engine)()
+        self.client = app.test_client()
 
     def tearDown(self):
         self.session.commit()
